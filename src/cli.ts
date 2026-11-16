@@ -27,6 +27,8 @@ const MAX_WAIT_MINUTES = 60;
 const TOKEN_SHAPE = /^zgt_[A-Za-z0-9_-]+$/;
 const BREAK_GLASS_SHAPE = /^zbg_[A-Za-z0-9_-]+$/;
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]"]);
+// A fixed constant, never built from input, so the token can only go to Zof or an explicit override.
+export const DEFAULT_API_URL = "https://control.zof.ai";
 
 export const USAGE = `Usage: zof-gate --environment <name> [options]
 
@@ -44,13 +46,14 @@ Options:
   --no-wait              answer once, don't wait
   --break-glass <reason> deploy whatever the verdict, recorded (needs ZOF_BREAK_GLASS_TOKEN)
   --json                 print the final answer as one JSON line on stdout
-  --api-url <url>        the Control Plane URL (or ZOF_API_URL)
+  --api-url <url>        the Control Plane URL (or ZOF_API_URL; default ${DEFAULT_API_URL})
 
 Environment: ZOF_GATE_TOKEN (required), ZOF_BREAK_GLASS_TOKEN, ZOF_API_URL.
 Exit codes: 0 pass, 1 blocked, 2 usage or configuration, 3 Zof unavailable, 4 token.`;
 
+// An unset or blank value means the default; a set one must be https (http only for localhost).
 function apiUrl(value: string | undefined): string | null {
-  if (value === undefined || value.trim() === "") return null;
+  if (value === undefined || value.trim() === "") return DEFAULT_API_URL;
   let url: URL;
   try {
     url = new URL(value.trim());
@@ -122,9 +125,10 @@ export async function main(
     return Exit.Token;
   }
 
-  const url = apiUrl(v["api-url"] ?? env.ZOF_API_URL);
+  const flagUrl = v["api-url"];
+  const url = apiUrl(flagUrl !== undefined && flagUrl.trim() !== "" ? flagUrl : env.ZOF_API_URL);
   if (url === null) {
-    log.line("Set ZOF_API_URL or --api-url to the Control Plane's https URL.");
+    log.line("ZOF_API_URL or --api-url must be an https URL (http only for localhost).");
     return Exit.Usage;
   }
 

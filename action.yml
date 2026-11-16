@@ -14,7 +14,9 @@ inputs:
       instead. It is masked and never printed.
     required: false
   api-url:
-    description: The Control Plane URL (or set ZOF_API_URL).
+    description: >-
+      The Control Plane URL, https only (or set ZOF_API_URL). Defaults to https://control.zof.ai;
+      override it for on-prem or staging.
     required: false
   max-wait:
     description: Minutes to wait for a decision, 1-60 (default 10; the server's limit wins).

@@ -77,6 +77,32 @@ describe("action inputs", () => {
     );
   });
 
+  it("with no api-url input or ZOF_API_URL, sends the token only to https://control.zof.ai", async () => {
+    const r = await run(
+      { ...RUNNER, "INPUT_API-URL": "", ZOF_API_URL: undefined },
+      201,
+      fixture("release-gate-answer-pass"),
+    );
+    expect(r.exit).toBe(Exit.Pass);
+    expect(r.net.sent.length).toBeGreaterThan(0);
+    for (const s of r.net.sent) expect(new URL(s.url).origin).toBe("https://control.zof.ai");
+  });
+
+  it("the api-url input overrides ZOF_API_URL and the default", async () => {
+    const r = await run(
+      { ...RUNNER, ZOF_API_URL: "https://other.example.com" },
+      201,
+      fixture("release-gate-answer-pass"),
+    );
+    for (const s of r.net.sent) expect(new URL(s.url).origin).toBe("https://cp.example.com");
+  });
+
+  it("a non-https api-url input is exit 2 and sends nothing", async () => {
+    const r = await run({ ...RUNNER, "INPUT_API-URL": "http://cp.example.com" }, 201, {});
+    expect(r.exit).toBe(Exit.Usage);
+    expect(r.net.sent).toHaveLength(0);
+  });
+
   it("the token input wins over ZOF_GATE_TOKEN, and is masked before any request", async () => {
     const other = `zgt_${"C".repeat(43)}`;
     const r = await run(

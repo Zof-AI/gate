@@ -10,17 +10,12 @@ a package, create tags, enable a gate or change account settings.
 | Container     | `ghcr.io/zof-ai/gate:1.0.0`, aliases `1.0` and `1`; linux/amd64 |
 | CLI wrapper   | `@zof-ai/cli` depends on `@zof-ai/gate@1.0.0`                   |
 
-## Blocking source decision: public API address
+## Public API address
 
-The production Control Plane URL required by gate spec §8 has not been verified for this
-release. The current CLI and Action require `--api-url`, the `api-url` input, or `ZOF_API_URL`;
-an omitted URL fails closed with exit 2. No address is inferred from an internal listener,
-temporary tunnel, dashboard URL or example.
-
-Before publication, the Control Plane owner must identify the canonical public HTTPS origin
-and the production revision serving `/v1/gate/checks`. A reviewed follow-up must add that
-default, retain explicit flag/input precedence over the environment and default, and test
-failure and response-validation behavior. Until then, this is release preparation only.
+From 1.0.1 the CLI and Action default to `https://control.zof.ai`, a fixed constant. The
+`--api-url` flag, the `api-url` input or `ZOF_API_URL` override it (flag or input first, then the
+environment) and must be https; plain http is accepted only for localhost. An invalid override
+fails closed with exit 2 and sends nothing.
 
 ## Owner setup
 
