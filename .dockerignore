@@ -1,0 +1,12 @@
+.git
+.github
+node_modules
+lib
+dist
+coverage
+fixtures
+test
+*.log
+*.tgz
+.env
+.env.*

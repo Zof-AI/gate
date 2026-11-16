@@ -43,3 +43,33 @@ export function positiveInt(value: string | number | undefined | null): number |
   const n = Number(text);
   return Number.isSafeInteger(n) ? n : undefined;
 }
+
+const GITHUB_REMOTE = [
+  // https://[user[:pass]@]github.com/owner/name[.git][/]  and  ssh://git@github.com/owner/name.git
+  /^(?:https?|ssh|git):\/\/(?:[^@/]+@)?github\.com(?::\d+)?\/([^/\s]+)\/([^/\s]+?)(?:\.git)?\/?$/i,
+  // git@github.com:owner/name.git
+  /^[^@\s]+@github\.com:([^/\s]+)\/([^/\s]+?)(?:\.git)?\/?$/i,
+];
+
+/** `owner/name` only when the remote is github.com; any other host is never guessed from. */
+export function githubRepoFromUrl(url: string | undefined): string | undefined {
+  const text = nonEmpty(url);
+  if (text === undefined) return undefined;
+  for (const pattern of GITHUB_REMOTE) {
+    const m = pattern.exec(text);
+    if (m?.[1] !== undefined && m[2] !== undefined) return `${m[1]}/${m[2]}`;
+  }
+  return undefined;
+}
+
+/** A run link is optional, so an internal plain-http one is dropped rather than failing the job. */
+export function httpsUrl(value: string | undefined): string | undefined {
+  const text = nonEmpty(value);
+  return text !== undefined && /^https:\/\/[\x21-\x7e]+$/.test(text) ? text : undefined;
+}
+
+/** The trailing number of a GitHub pull request URL (`…/pull/9`). */
+export function pullNumberFromUrl(url: string | undefined): number | undefined {
+  const m = /\/pull\/([0-9]+)\/?$/.exec(nonEmpty(url) ?? "");
+  return positiveInt(m?.[1]);
+}

@@ -1,7 +1,7 @@
 import { parseArgs } from "node:util";
 import { type CiIo, detectCi, type Env } from "./ci/index.js";
 import { GateClient, type GateDeps } from "./client.js";
-import type { GateAnswer } from "./contract.js";
+import type { GateAnswer, GateRequest } from "./contract.js";
 import { Exit, type ExitCode } from "./exit.js";
 import { createLogger } from "./redact.js";
 import { finalLines, headline, waitingLines } from "./render.js";
@@ -11,6 +11,14 @@ import { VERSION } from "./version.js";
 export interface CliIo extends CiIo {
   stdout(line: string): void;
   stderr(line: string): void;
+  /** Called once a request was built and run, so a wrapper (the Action) can report the answer. */
+  outcome?(result: CliOutcome): void;
+}
+
+export interface CliOutcome {
+  exit: ExitCode;
+  request: GateRequest;
+  answer: GateAnswer | null;
 }
 
 const DEFAULT_MAX_WAIT_MINUTES = 10;
@@ -194,6 +202,7 @@ export async function main(
   if (json && outcome.answer !== null) {
     createLogger(io.stdout, secrets).line(JSON.stringify(outcome.answer));
   }
+  io.outcome?.({ exit: outcome.exit, request: built.request, answer: outcome.answer });
   return outcome.exit;
 }
 

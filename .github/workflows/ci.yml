@@ -26,3 +26,6 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+      # The Action runs the committed bundle, so a source change without a rebuilt dist/ fails here.
+      - name: Check dist/ is current
+        run: npm run bundle:check

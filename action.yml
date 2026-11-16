@@ -1,0 +1,36 @@
+name: Zof release gate
+description: Block a deploy until the Zof Control Plane allows this commit to this environment.
+author: Zof AI, Inc.
+branding:
+  icon: shield
+  color: blue
+inputs:
+  environment:
+    description: The environment this job deploys to, as Zof knows it (for example production).
+    required: true
+  token:
+    description: >-
+      The Zof pipeline token (zgt_...). Pass it from a secret, or set the ZOF_GATE_TOKEN env var
+      instead. It is masked and never printed.
+    required: false
+  api-url:
+    description: The Control Plane URL (or set ZOF_API_URL).
+    required: false
+  max-wait:
+    description: Minutes to wait for a decision, 1-60 (default 10; the server's limit wins).
+    required: false
+  break-glass:
+    description: >-
+      Deploy whatever the verdict, with this reason recorded. Needs ZOF_BREAK_GLASS_TOKEN set from
+      an admin-issued secret.
+    required: false
+outputs:
+  result:
+    description: pass, fail or error.
+  exit-code:
+    description: 0 pass, 1 blocked, 2 configuration, 3 Zof unavailable, 4 token.
+  console-url:
+    description: The Zof console page for this deploy, when Zof answered.
+runs:
+  using: node24
+  main: dist/index.mjs

@@ -16,7 +16,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "types": ["node"],
-    "outDir": "dist",
+    "outDir": "lib",
     "rootDir": "."
   },
   "include": ["src", "test", "vitest.config.ts"]

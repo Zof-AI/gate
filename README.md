@@ -4,15 +4,76 @@
 decision: one step and one secret ask Zof whether this commit may go to this environment, and the
 job passes or fails on the answer.
 
-> **Status: pre-release, not yet usable.** The client, GitHub Action and container image are being
-> built. Nothing is published to npm or any registry yet.
+> **Status: pre-release.** Nothing is published yet. The `v1` tag, the npm package and the
+> image digests below appear with the first release.
 
-## What's here
+## GitHub Actions
 
-- A small, dependency-free TypeScript client (`zof-gate`) speaking the Control Plane's `gate.v1`
-  contract.
-- Later: the GitHub Action (`uses: zof-ai/gate@v1`), a container image for other CIs, and a GitLab
-  CI Catalog component.
+Create a pipeline token in Zof (Settings › Pipeline tokens), save it as the repo secret
+`ZOF_GATE_TOKEN`, and add this step to the deploy job before the deploy:
+
+```yaml
+- uses: zof-ai/gate@v1
+  with:
+    environment: production
+    api-url: https://<your Zof Control Plane>
+    token: ${{ secrets.ZOF_GATE_TOKEN }}
+```
+
+`api-url` is required for now; a default address lands with the first public release.
+
+The step fails the job unless Zof allows this commit to this environment, and writes the verdict,
+reasons and console link to the job summary. `api-url` can also come from `ZOF_API_URL`. Optional
+inputs: `max-wait` (minutes, 1-60, default 10) and `break-glass` (a reason; needs `ZOF_BREAK_GLASS_TOKEN`).
+Outputs: `result` (`pass`, `fail` or `error`), `exit-code` and `console-url`. For the strictest
+pinning, use a release tag's full commit SHA instead of `@v1`.
+
+## GitLab CI
+
+```yaml
+zof_gate:
+  stage: deploy
+  image: ghcr.io/zof-ai/gate:1@sha256:<digest from the release notes>
+  variables:
+    ZOF_API_URL: https://<your Zof Control Plane>
+  script:
+    - zof-gate --environment "$CI_ENVIRONMENT_NAME" --repo owner/name
+```
+
+Set `ZOF_GATE_TOKEN` as a masked, protected CI/CD variable. Pass `--repo` (the GitHub repo Zof
+gates): the GitLab project path is not it.
+
+## Any other CI
+
+With the image (Bitbucket Pipelines, Jenkins, CircleCI, Azure Pipelines and others). The image is
+linux/amd64 only for now.
+
+```sh
+docker run --rm -e ZOF_GATE_TOKEN -e ZOF_API_URL \
+  ghcr.io/zof-ai/gate:1@sha256:<digest from the release notes> \
+  zof-gate --environment production --repo owner/name --commit "$GIT_COMMIT" --run-id "$BUILD_ID"
+```
+
+Or with Node 22+: `npx @zof-ai/gate --environment production`.
+
+The CLI reads the repo, commit, run and environment from GitHub Actions, GitLab CI, Bitbucket
+Pipelines, Azure Pipelines, Jenkins and CircleCI. It takes a repo only from a github.com remote; on
+any other CI, or when a value is missing, it exits 2 naming the flag to pass (`--repo`, `--commit`,
+`--run-id`, `--environment`). `zof-gate --help` lists every flag.
+
+## Verify what you run
+
+Each release's notes give the image digest and these commands:
+
+```sh
+cosign verify ghcr.io/zof-ai/gate@sha256:<digest> \
+  --certificate-identity https://github.com/Zof-AI/gate/.github/workflows/release.yml@refs/heads/main \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+gh attestation verify oci://ghcr.io/zof-ai/gate@sha256:<digest> --repo Zof-AI/gate
+npm audit signatures   # in a project that installs @zof-ai/gate
+```
+
+The npm package is published with provenance through npm trusted publishing; no npm token exists.
 
 ## Exit codes
 
@@ -37,7 +98,11 @@ Node 22 or 24.
 ```sh
 npm ci
 npm run check   # lint, typecheck, tests
+npm run bundle  # rebuild dist/index.mjs (the Action) after changing src/; CI fails if it's stale
 ```
+
+Releases run only from `.github/workflows/release.yml` (manual dispatch from `main`, `release`
+environment approval).
 
 The `gate.v1` contract (OpenAPI, JSON schemas and the Control Plane's fixtures) is copied byte for
 byte into `fixtures/gate.v1/`, with its source commit in `SOURCE.json`. Refresh it from a
