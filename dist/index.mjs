@@ -764,7 +764,7 @@ function finalLines(answer, passed) {
 }
 
 // src/version.ts
-var VERSION = "0.0.0";
+var VERSION = "1.0.0";
 
 // src/cli.ts
 var DEFAULT_MAX_WAIT_MINUTES = 10;
