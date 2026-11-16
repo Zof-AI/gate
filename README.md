@@ -4,12 +4,8 @@
 decision: one step and one secret ask Zof whether this commit may go to this environment, and the
 job passes or fails on the answer.
 
-> **Status: pre-release.** Nothing is published yet. The `v1` tag, the npm package and the
-> image digests below appear with the first release.
-
-The prepared first version is `1.0.0`: npm `@zof-ai/gate@1.0.0`, Action tags `v1.0.0`/`v1`,
-and image tags `1.0.0`/`1.0`/`1`. Publication remains blocked on the verified public API
-default and owner setup described in [RELEASE.md](RELEASE.md).
+The current version is `1.0.1`: npm `@zof-ai/gate@1.0.1`, Action tags `v1.0.1`/`v1`, and image
+tags `1.0.1`/`1.0`/`1`. See [RELEASE.md](RELEASE.md) for how releases are made.
 
 ## Embedding the command
 
@@ -28,17 +24,17 @@ Create a pipeline token in Zof (Settings › Pipeline tokens), save it as the re
 - uses: zof-ai/gate@v1
   with:
     environment: production
-    api-url: https://<your Zof Control Plane>
     token: ${{ secrets.ZOF_GATE_TOKEN }}
 ```
 
-`api-url` is required for now; a default address lands with the first public release.
+The gate talks to `https://control.zof.ai` by default. For an on-prem or staging Control Plane,
+add `api-url: https://<your Control Plane>` (or set `ZOF_API_URL`); it must be https.
 
 The step fails the job unless Zof allows this commit to this environment, and writes the verdict,
-reasons and console link to the job summary. `api-url` can also come from `ZOF_API_URL`. Optional
-inputs: `max-wait` (minutes, 1-60, default 10) and `break-glass` (a reason; needs `ZOF_BREAK_GLASS_TOKEN`).
-Outputs: `result` (`pass`, `fail` or `error`), `exit-code` and `console-url`. For the strictest
-pinning, use a release tag's full commit SHA instead of `@v1`.
+reasons and console link to the job summary. Optional inputs: `api-url` (see above), `max-wait`
+(minutes, 1-60, default 10) and `break-glass` (a reason; needs `ZOF_BREAK_GLASS_TOKEN`). Outputs:
+`result` (`pass`, `fail` or `error`), `exit-code` and `console-url`. For the strictest pinning, use
+a release tag's full commit SHA instead of `@v1`.
 
 ## GitLab CI
 
@@ -46,8 +42,6 @@ pinning, use a release tag's full commit SHA instead of `@v1`.
 zof_gate:
   stage: deploy
   image: ghcr.io/zof-ai/gate:1@sha256:<digest from the release notes>
-  variables:
-    ZOF_API_URL: https://<your Zof Control Plane>
   script:
     - zof-gate --environment "$CI_ENVIRONMENT_NAME" --repo owner/name
 ```
@@ -61,7 +55,7 @@ With the image (Bitbucket Pipelines, Jenkins, CircleCI, Azure Pipelines and othe
 linux/amd64 only for now.
 
 ```sh
-docker run --rm -e ZOF_GATE_TOKEN -e ZOF_API_URL \
+docker run --rm -e ZOF_GATE_TOKEN \
   ghcr.io/zof-ai/gate:1@sha256:<digest from the release notes> \
   zof-gate --environment production --repo owner/name --commit "$GIT_COMMIT" --run-id "$BUILD_ID"
 ```
@@ -71,7 +65,8 @@ Or with Node 22+: `npx @zof-ai/gate --environment production`.
 The CLI reads the repo, commit, run and environment from GitHub Actions, GitLab CI, Bitbucket
 Pipelines, Azure Pipelines, Jenkins and CircleCI. It takes a repo only from a github.com remote; on
 any other CI, or when a value is missing, it exits 2 naming the flag to pass (`--repo`, `--commit`,
-`--run-id`, `--environment`). `zof-gate --help` lists every flag.
+`--run-id`, `--environment`). The CLI also uses `https://control.zof.ai` unless `--api-url` or
+`ZOF_API_URL` names another https Control Plane. `zof-gate --help` lists every flag.
 
 ## Verify what you run
 

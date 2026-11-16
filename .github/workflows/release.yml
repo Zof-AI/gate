@@ -93,7 +93,7 @@ jobs:
     if: inputs.publish && github.ref == 'refs/heads/main'
     environment: release
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 20
     permissions:
       contents: read
       id-token: write
@@ -118,12 +118,30 @@ jobs:
         # The ./ prefix matters: npm reads "dist-pack/x.tgz" as GitHub shorthand, not a file.
         run: npm publish "./dist-pack/$TARBALL" --access public --provenance
       - name: Verify the published package's signatures and provenance
+        # The registry can take minutes to show a new version, so wait up to ~5 minutes for it;
+        # a version that never appears, or signatures that don't verify, still fail the job.
         run: |
+          shown=""
+          for _ in $(seq 1 20); do
+            shown="$(npm view "@zof-ai/gate@$VERSION" version 2>/dev/null || true)"
+            [ "$shown" = "$VERSION" ] && break
+            echo "Waiting for @zof-ai/gate@$VERSION to appear on the registry"
+            sleep 15
+          done
+          if [ "$shown" != "$VERSION" ]; then
+            echo "::error::@zof-ai/gate@$VERSION did not appear on the registry within 5 minutes"
+            exit 1
+          fi
           mkdir verify && cd verify && npm init -y >/dev/null
+          installed=""
           for _ in 1 2 3 4 5 6; do
-            npm install --ignore-scripts "@zof-ai/gate@$VERSION" && break
+            npm install --ignore-scripts "@zof-ai/gate@$VERSION" && installed=yes && break
             sleep 10
           done
+          if [ -z "$installed" ]; then
+            echo "::error::Could not install @zof-ai/gate@$VERSION from the registry"
+            exit 1
+          fi
           npm audit signatures
 
   image:

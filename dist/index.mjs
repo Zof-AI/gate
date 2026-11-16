@@ -764,7 +764,7 @@ function finalLines(answer, passed) {
 }
 
 // src/version.ts
-var VERSION = "1.0.0";
+var VERSION = "1.0.1";
 
 // src/cli.ts
 var DEFAULT_MAX_WAIT_MINUTES = 10;
@@ -772,6 +772,7 @@ var MAX_WAIT_MINUTES = 60;
 var TOKEN_SHAPE = /^zgt_[A-Za-z0-9_-]+$/;
 var BREAK_GLASS_SHAPE = /^zbg_[A-Za-z0-9_-]+$/;
 var LOCAL_HOSTS = /* @__PURE__ */ new Set(["localhost", "127.0.0.1", "[::1]"]);
+var DEFAULT_API_URL = "https://control.zof.ai";
 var USAGE = `Usage: zof-gate --environment <name> [options]
 
 Asks Zof whether this commit may deploy to this environment. Exit 0 only on a pass.
@@ -788,12 +789,12 @@ Options:
   --no-wait              answer once, don't wait
   --break-glass <reason> deploy whatever the verdict, recorded (needs ZOF_BREAK_GLASS_TOKEN)
   --json                 print the final answer as one JSON line on stdout
-  --api-url <url>        the Control Plane URL (or ZOF_API_URL)
+  --api-url <url>        the Control Plane URL (or ZOF_API_URL; default ${DEFAULT_API_URL})
 
 Environment: ZOF_GATE_TOKEN (required), ZOF_BREAK_GLASS_TOKEN, ZOF_API_URL.
 Exit codes: 0 pass, 1 blocked, 2 usage or configuration, 3 Zof unavailable, 4 token.`;
 function apiUrl(value) {
-  if (value === void 0 || value.trim() === "") return null;
+  if (value === void 0 || value.trim() === "") return DEFAULT_API_URL;
   let url;
   try {
     url = new URL(value.trim());
@@ -853,9 +854,10 @@ async function main(argv, env, io, deps) {
     log.line("ZOF_GATE_TOKEN is not a Zof pipeline token (zgt_…).");
     return Exit.Token;
   }
-  const url = apiUrl(v["api-url"] ?? env.ZOF_API_URL);
+  const flagUrl = v["api-url"];
+  const url = apiUrl(flagUrl !== void 0 && flagUrl.trim() !== "" ? flagUrl : env.ZOF_API_URL);
   if (url === null) {
-    log.line("Set ZOF_API_URL or --api-url to the Control Plane's https URL.");
+    log.line("ZOF_API_URL or --api-url must be an https URL (http only for localhost).");
     return Exit.Usage;
   }
   let maxWaitMinutes = DEFAULT_MAX_WAIT_MINUTES;
