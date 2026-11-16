@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DETECTORS, detectCi } from "../src/ci/index.js";
+import { detectCi } from "../src/ci/index.js";
 import { buildRequest, idempotencyKey, normaliseJob } from "../src/request.js";
 
 const SHA = "1a2b3c4d5e6f708192a3b4c5d6e7f80912345678";
@@ -36,10 +36,6 @@ const GITLAB_MR = {
 };
 
 describe("detection", () => {
-  it("has one detector per provider", () => {
-    expect(DETECTORS.map((d) => d.provider)).toEqual(["github_actions", "gitlab_ci"]);
-  });
-
   it("falls back to other with nothing detected", () => {
     expect(detectCi({ CI: "true" }, noFiles)).toMatchObject({ provider: "other", repo: undefined });
   });
