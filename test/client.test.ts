@@ -201,6 +201,33 @@ describe("outages are exit 3, after retries", () => {
   });
 });
 
+describe("redirects are never followed", () => {
+  const TARGET = "http://evil.example.net/v1/gate/checks";
+
+  it.each([
+    ["a POST", [{ redirectTo: TARGET }]],
+    ["a poll", [{ status: 202, body: farWaiting() }, { redirectTo: TARGET }]],
+  ] as const)(
+    "%s redirected elsewhere is exit 3 and no secret reaches the target",
+    async (_, script) => {
+      const env = { ...FIXTURE_ENV, ZOF_BREAK_GLASS_TOKEN: BREAK_GLASS };
+      const args = [...FIXTURE_ARGS, "--break-glass", "Outage"];
+      const { exit, sent } = await run(script as unknown as Scripted[], args, env);
+      expect(exit).toBe(Exit.Unavailable);
+      expect(sent.filter((s) => s.url.startsWith("http://evil.example.net"))).toEqual([]);
+      for (const s of sent) expect(s.redirect).toBe("error");
+    },
+  );
+
+  it("every request asks fetch to refuse redirects", async () => {
+    const { sent } = await run([
+      { status: 202, body: farWaiting() },
+      { status: 200, body: fixture("release-gate-answer-pass") },
+    ]);
+    expect(sent.map((s) => s.redirect)).toEqual(["error", "error"]);
+  });
+});
+
 describe("error codes (§3.6)", () => {
   it.each([
     [401, "unauthorized", Exit.Token],

@@ -16,7 +16,13 @@ export interface HttpResponse {
 
 export type FetchLike = (
   url: string,
-  init: { method: string; headers: Record<string, string>; body?: string; signal?: AbortSignal },
+  init: {
+    method: string;
+    headers: Record<string, string>;
+    body?: string;
+    signal?: AbortSignal;
+    redirect: "error";
+  },
 ) => Promise<HttpResponse>;
 
 /** Everything with a side effect is injected, so tests run with no network and no real time. */
@@ -199,6 +205,8 @@ export class GateClient {
       response = await this.deps.fetch(`${this.call.apiUrl}${path}`, {
         method,
         headers: this.headers(method),
+        // A followed redirect would re-send X-Zof-Break-Glass to another host; a 3xx is exit 3.
+        redirect: "error",
         ...(body === undefined ? {} : { body }),
         ...(signal === undefined ? {} : { signal }),
       });

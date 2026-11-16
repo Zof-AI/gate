@@ -44,13 +44,15 @@ export const FIXTURE_ARGS = [
 export type Scripted =
   | { status: number; body: unknown; headers?: Record<string, string> }
   | { status: number; raw: string; headers?: Record<string, string> }
-  | { throws: true };
+  | { throws: true }
+  | { redirectTo: string };
 
 export interface Sent {
   url: string;
   method: string;
   headers: Record<string, string>;
   body: string | undefined;
+  redirect: string | undefined;
   at: number;
 }
 
@@ -60,8 +62,28 @@ export function fakeDeps(script: Scripted[], start = Date.parse("2026-11-13T10:0
   const sent: Sent[] = [];
   const sleeps: number[] = [];
   const fetch: FetchLike = async (url, init) => {
-    sent.push({ url, method: init.method, headers: init.headers, body: init.body, at: now });
+    sent.push({
+      url,
+      method: init.method,
+      headers: init.headers,
+      body: init.body,
+      redirect: init.redirect,
+      at: now,
+    });
     const step = script[Math.min(sent.length - 1, script.length - 1)];
+    if (step !== undefined && "redirectTo" in step) {
+      // Models undici: "error" rejects; "follow" (the default) re-sends custom headers to the target.
+      if (init.redirect === "error") throw new TypeError("fetch failed: unexpected redirect");
+      if (init.redirect !== "manual") {
+        sent.push({ ...sent[sent.length - 1], url: step.redirectTo } as Sent);
+        throw new Error("followed");
+      }
+      return {
+        status: 302,
+        headers: { get: (name) => (name.toLowerCase() === "location" ? step.redirectTo : null) },
+        text: async () => "",
+      };
+    }
     if (step === undefined || "throws" in step)
       throw new Error(`connect failed ${init.headers.Authorization}`);
     const text = "raw" in step ? step.raw : JSON.stringify(step.body);

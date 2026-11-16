@@ -15,7 +15,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 /** Independent oracle: what a response must be for exit 0 to be allowed (S2). */
 function isStoredPass(step: Scripted): boolean {
-  if ("throws" in step || "raw" in step) return false;
+  if ("throws" in step || "raw" in step || "redirectTo" in step) return false;
   if (![200, 201].includes(step.status)) return false;
   const a = step.body as Record<string, unknown> | null;
   if (typeof a !== "object" || a === null) return false;
