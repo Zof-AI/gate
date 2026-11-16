@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { main } from "../src/cli.js";
 import { Exit } from "../src/exit.js";
+import { runGateCli as main } from "../src/index.js";
 import { BREAK_GLASS, captureIo, FIXTURE_ARGS, FIXTURE_ENV, fakeDeps } from "./helpers.js";
 
 async function run(args: readonly string[], env: Record<string, string | undefined>) {

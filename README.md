@@ -7,7 +7,16 @@ job passes or fails on the answer.
 > **Status: pre-release.** Nothing is published yet. The `v1` tag, the npm package and the
 > image digests below appear with the first release.
 
+## Embedding the command
+
+Other Zof CLIs can import `runGateCli` from `@zof-ai/gate`. It accepts the argument array,
+environment, `CliIo` and `GateDeps`, and returns the exit code without exiting the process.
+This is the same command used by `zof-gate`: detection, validation, redaction, waiting and
+exit-code handling stay in this package. The caller supplies file, output, network and clock
+adapters and must preserve the returned exit code.
+
 ## GitHub Actions
+
 
 Create a pipeline token in Zof (Settings › Pipeline tokens), save it as the repo secret
 `ZOF_GATE_TOKEN`, and add this step to the deploy job before the deploy:

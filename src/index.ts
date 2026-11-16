@@ -1,5 +1,6 @@
 export { mismatch, parseAnswer, parseError } from "./answer.js";
 export { type CiContext, type CiDetector, DETECTORS, detectCi } from "./ci/index.js";
+export { type CliIo, type CliOutcome, main as runGateCli } from "./cli.js";
 export { exitForAnswer, type FetchLike, GateClient, type GateDeps } from "./client.js";
 export * from "./contract.js";
 export { dispositionFor, Exit, type ExitCode } from "./exit.js";
