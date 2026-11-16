@@ -33,8 +33,9 @@ failure and response-validation behavior. Until then, this is release preparatio
    exist when checked. npm requires an existing package for trust setup, so first-publication
    bootstrap needs an owner-approved procedure before this workflow can publish over OIDC.
 3. npm's staged-publication option creates a public `0.0.0-stage` placeholder. If selected,
-   review bootstrap support first: the current workflow's latest-version check accepts only
-   `x.y.z`. Do not treat a staged placeholder as a completed 1.0.0 release.
+   the workflow's version check (`scripts/version-check.mjs`) ignores it and other prereleases,
+   comparing only against real `x.y.z` releases. Do not treat a staged placeholder as a completed
+   1.0.0 release.
 
 See [npm trust prerequisites](https://docs.npmjs.com/cli/v11/commands/npm-trust/),
 [trusted publishers](https://docs.npmjs.com/trusted-publishers/) and
