@@ -5,8 +5,7 @@ decision: one step and one secret ask Zof whether this commit may go to this env
 job passes or fails on the answer.
 
 > **Status: pre-release.** Nothing is published yet. The `v1` tag, the npm package and the
-> image digests below appear with the first release, which also sets the default Control Plane
-> URL; until then pass `api-url` (or `ZOF_API_URL`).
+> image digests below appear with the first release.
 
 ## GitHub Actions
 
@@ -17,12 +16,15 @@ Create a pipeline token in Zof (Settings › Pipeline tokens), save it as the re
 - uses: zof-ai/gate@v1
   with:
     environment: production
+    api-url: https://<your Zof Control Plane>
     token: ${{ secrets.ZOF_GATE_TOKEN }}
 ```
 
+`api-url` is required for now; a default address lands with the first public release.
+
 The step fails the job unless Zof allows this commit to this environment, and writes the verdict,
-reasons and console link to the job summary. Optional inputs: `api-url` (or `ZOF_API_URL`),
-`max-wait` (minutes, 1-60, default 10) and `break-glass` (a reason; needs `ZOF_BREAK_GLASS_TOKEN`).
+reasons and console link to the job summary. `api-url` can also come from `ZOF_API_URL`. Optional
+inputs: `max-wait` (minutes, 1-60, default 10) and `break-glass` (a reason; needs `ZOF_BREAK_GLASS_TOKEN`).
 Outputs: `result` (`pass`, `fail` or `error`), `exit-code` and `console-url`. For the strictest
 pinning, use a release tag's full commit SHA instead of `@v1`.
 
@@ -43,7 +45,8 @@ gates): the GitLab project path is not it.
 
 ## Any other CI
 
-With the image (Bitbucket Pipelines, Jenkins, CircleCI, Azure Pipelines and others):
+With the image (Bitbucket Pipelines, Jenkins, CircleCI, Azure Pipelines and others). The image is
+linux/amd64 only for now.
 
 ```sh
 docker run --rm -e ZOF_GATE_TOKEN -e ZOF_API_URL \
