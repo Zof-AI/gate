@@ -39,6 +39,11 @@ npm ci
 npm run check   # lint, typecheck, tests
 ```
 
+The `gate.v1` contract (OpenAPI, JSON schemas and the Control Plane's fixtures) is copied byte for
+byte into `fixtures/gate.v1/`, with its source commit in `SOURCE.json`. Refresh it from a
+`control_plane` checkout with `npm run contract:sync -- <path> [ref]`; the contract tests fail if
+the copy is edited or drifts from the schema version this client speaks.
+
 ## License
 
 Apache-2.0. See [LICENSE](LICENSE).

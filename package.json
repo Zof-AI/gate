@@ -11,20 +11,38 @@
     "url": "git+https://github.com/Zof-AI/gate.git"
   },
   "type": "module",
+  "bin": {
+    "zof-gate": "dist/bin.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "lint": "biome check .",
+    "lint": "biome check --error-on-warnings .",
     "fmt": "biome check --write .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "check": "npm run lint && npm run typecheck && npm test"
+    "check": "npm run lint && npm run typecheck && npm test",
+    "contract:sync": "node scripts/sync-contract.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.8",
     "@types/node": "22.20.5",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "fast-check": "4.10.2",
     "typescript": "5.9.3",
     "vitest": "4.1.12"
   }
