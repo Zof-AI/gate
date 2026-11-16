@@ -11,7 +11,7 @@ COPY src ./src
 RUN npm run build
 
 FROM ${NODE_IMAGE}
-ARG VERSION=1.0.1
+ARG VERSION=1.0.2
 LABEL org.opencontainers.image.title="zof-gate" \
       org.opencontainers.image.description="Block a CI/CD deploy on the Zof Control Plane's decision." \
       org.opencontainers.image.source="https://github.com/Zof-AI/gate" \

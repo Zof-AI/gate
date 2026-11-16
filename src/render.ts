@@ -12,11 +12,25 @@ export function headline(request: GateRequest, ci: CiContext): string {
   return `Zof gate: ${request.repo} @ ${request.commit_sha.slice(0, 7)} → ${request.environment} (${run})`;
 }
 
-function reasonLines(answer: GateAnswer): string[] {
-  const lines = answer.reasons.map((r) => `  - ${r.message}`);
-  const more = answer.reasons_total - answer.reasons.length;
-  if (more > 0) lines.push(`  - and ${more} more`);
+// A long list buries the first fix in the job log; the console has the rest.
+export const MAX_REASONS = 10;
+
+/** One line per CP reason (message and code only), capped, with the remainder counted. */
+export function reasonLines(answer: GateAnswer): string[] {
+  const shown = answer.reasons.slice(0, MAX_REASONS);
+  const lines = shown.map((r) => `  - ${r.message} (${r.code})`);
+  const more = Math.max(answer.reasons_total, answer.reasons.length) - shown.length;
+  if (more > 0) lines.push(`  +${more} more`);
   return lines;
+}
+
+const TIMED_OUT: Record<string, string> = {
+  evidence: "Timed out waiting for evidence.",
+  approval: "Timed out waiting for approval.",
+};
+
+export function timedOutMessage(waitingFor: string | null): string {
+  return TIMED_OUT[waitingFor ?? ""] ?? "Timed out waiting for Zof's decision.";
 }
 
 export function waitingLines(answer: GateAnswer): string[] {

@@ -1,14 +1,14 @@
-# First release: 1.0.0
+# Release: 1.0.2
 
 This source prepares one version for npm, the Action and the container. It does not publish
 a package, create tags, enable a gate or change account settings.
 
-| Surface       | First release                                                   |
+| Surface       | This release                                                    |
 | ------------- | --------------------------------------------------------------- |
-| npm           | `@zof-ai/gate@1.0.0`                                            |
-| GitHub Action | `Zof-AI/gate@v1.0.0`, moving alias `v1`                         |
-| Container     | `ghcr.io/zof-ai/gate:1.0.0`, aliases `1.0` and `1`; linux/amd64 |
-| CLI wrapper   | `@zof-ai/cli` depends on `@zof-ai/gate@1.0.0`                   |
+| npm           | `@zof-ai/gate@1.0.2`                                            |
+| GitHub Action | `Zof-AI/gate@v1.0.2`, moving alias `v1`                         |
+| Container     | `ghcr.io/zof-ai/gate:1.0.2`, aliases `1.0` and `1`; linux/amd64 |
+| CLI wrapper   | `@zof-ai/cli` depends on `@zof-ai/gate@1.0.2`                   |
 
 ## Public API address
 
@@ -30,7 +30,7 @@ fails closed with exit 2 and sends nothing.
 3. npm's staged-publication option creates a public `0.0.0-stage` placeholder. If selected,
    the workflow's version check (`scripts/version-check.mjs`) ignores it and other prereleases,
    comparing only against real `x.y.z` releases. Do not treat a staged placeholder as a completed
-   1.0.0 release.
+   release.
 
 See [npm trust prerequisites](https://docs.npmjs.com/cli/v11/commands/npm-trust/),
 [trusted publishers](https://docs.npmjs.com/trusted-publishers/) and
@@ -39,7 +39,7 @@ See [npm trust prerequisites](https://docs.npmjs.com/cli/v11/commands/npm-trust/
 ## Candidate and publication
 
 After the URL and owner setup are resolved, dispatch `release.yml` from the reviewed final
-`main` revision with `version=1.0.0`, `publish=false`. Record the exact source SHA, workflow
+`main` revision with `version=1.0.2`, `publish=false`. Record the exact source SHA, workflow
 run and `npm-tarball` SHA256. The candidate checks source, generated Action bundle, packed
 package, image version and non-root execution. A local validation tarball is not a release
 artifact.
