@@ -1,6 +1,6 @@
 {
   "name": "@zof-ai/gate",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": false,
   "description": "Zof release gate client: block a CI/CD deploy on the Zof Control Plane's decision.",
   "license": "Apache-2.0",
@@ -23,7 +23,8 @@
   "files": [
     "lib",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "RELEASE.md"
   ],
   "engines": {
     "node": ">=22"
