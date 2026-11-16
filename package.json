@@ -37,7 +37,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "check": "npm run lint && npm run typecheck && npm test",
-    "contract:sync": "node scripts/sync-contract.mjs"
+    "contract:sync": "node scripts/sync-contract.mjs",
+    "prepublishOnly": "node scripts/publish-guard.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.8",
