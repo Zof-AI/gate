@@ -17,7 +17,6 @@ adapters and must preserve the returned exit code.
 
 ## GitHub Actions
 
-
 Create a pipeline token in Zof (Settings › Pipeline tokens), save it as the repo secret
 `ZOF_GATE_TOKEN`, and add this step to the deploy job before the deploy:
 
