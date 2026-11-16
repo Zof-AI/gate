@@ -7,6 +7,10 @@ job passes or fails on the answer.
 > **Status: pre-release.** Nothing is published yet. The `v1` tag, the npm package and the
 > image digests below appear with the first release.
 
+The prepared first version is `1.0.0`: npm `@zof-ai/gate@1.0.0`, Action tags `v1.0.0`/`v1`,
+and image tags `1.0.0`/`1.0`/`1`. Publication remains blocked on the verified public API
+default and owner setup described in [RELEASE.md](RELEASE.md).
+
 ## Embedding the command
 
 Other Zof CLIs can import `runGateCli` from `@zof-ai/gate`. It accepts the argument array,
