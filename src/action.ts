@@ -3,6 +3,7 @@ import { type CliIo, type CliOutcome, main } from "./cli.js";
 import type { GateDeps } from "./client.js";
 import { Exit, type ExitCode } from "./exit.js";
 import { redact, sanitizeLine } from "./redact.js";
+import { MAX_REASONS } from "./render.js";
 
 export interface ActionIo extends CliIo {
   appendFile(path: string, text: string): void;
@@ -65,9 +66,12 @@ function summary(exit: ExitCode, result: CliOutcome | null, secrets: readonly st
     lines.push("");
     if (answer?.failure) lines.push(markdown(answer.failure.message, secrets), "");
     if (answer !== null && exit !== Exit.Pass && answer.reasons.length > 0) {
-      for (const r of answer.reasons) lines.push(`- ${markdown(r.message, secrets)}`);
-      const more = answer.reasons_total - answer.reasons.length;
-      if (more > 0) lines.push(`- and ${more} more`);
+      const shown = answer.reasons.slice(0, MAX_REASONS);
+      for (const r of shown) {
+        lines.push(`- ${markdown(r.message, secrets)} (${markdown(r.code, secrets)})`);
+      }
+      const more = Math.max(answer.reasons_total, answer.reasons.length) - shown.length;
+      if (more > 0) lines.push(`- +${more} more`);
       lines.push("");
     }
     const url = answer?.console_url;

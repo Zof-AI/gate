@@ -448,6 +448,51 @@ function dispositionFor(status, code) {
   return { kind: "exit", exit: Exit.Unavailable };
 }
 
+// src/render.ts
+var WAITING = {
+  decision: "Waiting for Zof's decision",
+  evidence: "Waiting for evidence",
+  approval: "Waiting for approval"
+};
+function headline(request, ci) {
+  const run = `${ci.label} run ${request.pipeline.run_id}`;
+  return `Zof gate: ${request.repo} @ ${request.commit_sha.slice(0, 7)} → ${request.environment} (${run})`;
+}
+var MAX_REASONS = 10;
+function reasonLines(answer) {
+  const shown = answer.reasons.slice(0, MAX_REASONS);
+  const lines = shown.map((r) => `  - ${r.message} (${r.code})`);
+  const more = Math.max(answer.reasons_total, answer.reasons.length) - shown.length;
+  if (more > 0) lines.push(`  +${more} more`);
+  return lines;
+}
+var TIMED_OUT = {
+  evidence: "Timed out waiting for evidence.",
+  approval: "Timed out waiting for approval."
+};
+function timedOutMessage(waitingFor) {
+  return TIMED_OUT[waitingFor ?? ""] ?? "Timed out waiting for Zof's decision.";
+}
+function waitingLines(answer) {
+  const head = WAITING[answer.waiting_for ?? ""] ?? "Waiting";
+  const lines = [`${head} · until ${answer.wait_until}`, ...reasonLines(answer)];
+  if (answer.approve_url !== null) lines.push(`Approve: ${answer.approve_url}`);
+  return lines;
+}
+function finalLines(answer, passed) {
+  const lines = [];
+  if (passed) {
+    const basis = answer.basis === "baseline" ? "this commit is the environment's baseline" : answer.basis === "break_glass" ? "break-glass, recorded as deployed without a Zof decision" : "the deploy decision is ALLOW";
+    lines.push(`Passed: ${basis}.`);
+  } else {
+    const verdict = answer.verdict === null ? "" : ` The deploy decision is ${answer.verdict.toUpperCase()}.`;
+    lines.push(`Blocked: ${answer.failure?.message ?? "Zof did not allow this deploy."}${verdict}`);
+    lines.push(...reasonLines(answer));
+  }
+  if (answer.console_url !== null) lines.push(`See ${answer.console_url}`);
+  return lines;
+}
+
 // src/request.ts
 import { createHash } from "node:crypto";
 var DEFAULT_JOB = "zof-gate";
@@ -594,7 +639,7 @@ var GateClient = class {
       const serverDeadline = Date.parse(answer.wait_until) + SERVER_DEADLINE_GRACE_MS;
       const stopAt = Math.min(this.deadline, serverDeadline);
       if (now >= stopAt) {
-        return { exit: Exit.Blocked, answer, message: "Timed out waiting for Zof's decision." };
+        return { exit: Exit.Blocked, answer, message: timedOutMessage(answer.waiting_for) };
       }
       const pollMs = answer.poll_after_seconds === null ? DEFAULT_POLL_MS : answer.poll_after_seconds * 1e3;
       const base = Math.max(MIN_POLL_MS, pollMs, reply.retryAfterMs ?? 0);
@@ -727,44 +772,8 @@ function createLogger(write2, secrets) {
   };
 }
 
-// src/render.ts
-var WAITING = {
-  decision: "Waiting for Zof's decision",
-  evidence: "Waiting for evidence",
-  approval: "Waiting for approval"
-};
-function headline(request, ci) {
-  const run = `${ci.label} run ${request.pipeline.run_id}`;
-  return `Zof gate: ${request.repo} @ ${request.commit_sha.slice(0, 7)} → ${request.environment} (${run})`;
-}
-function reasonLines(answer) {
-  const lines = answer.reasons.map((r) => `  - ${r.message}`);
-  const more = answer.reasons_total - answer.reasons.length;
-  if (more > 0) lines.push(`  - and ${more} more`);
-  return lines;
-}
-function waitingLines(answer) {
-  const head = WAITING[answer.waiting_for ?? ""] ?? "Waiting";
-  const lines = [`${head} · until ${answer.wait_until}`, ...reasonLines(answer)];
-  if (answer.approve_url !== null) lines.push(`Approve: ${answer.approve_url}`);
-  return lines;
-}
-function finalLines(answer, passed) {
-  const lines = [];
-  if (passed) {
-    const basis = answer.basis === "baseline" ? "this commit is the environment's baseline" : answer.basis === "break_glass" ? "break-glass, recorded as deployed without a Zof decision" : "the deploy decision is ALLOW";
-    lines.push(`Passed: ${basis}.`);
-  } else {
-    const verdict = answer.verdict === null ? "" : ` The deploy decision is ${answer.verdict.toUpperCase()}.`;
-    lines.push(`Blocked: ${answer.failure?.message ?? "Zof did not allow this deploy."}${verdict}`);
-    lines.push(...reasonLines(answer));
-  }
-  if (answer.console_url !== null) lines.push(`See ${answer.console_url}`);
-  return lines;
-}
-
 // src/version.ts
-var VERSION = "1.0.1";
+var VERSION = "1.0.2";
 
 // src/cli.ts
 var DEFAULT_MAX_WAIT_MINUTES = 10;
@@ -998,9 +1007,12 @@ function summary(exit, result, secrets) {
     lines.push("");
     if (answer?.failure) lines.push(markdown(answer.failure.message, secrets), "");
     if (answer !== null && exit !== Exit.Pass && answer.reasons.length > 0) {
-      for (const r of answer.reasons) lines.push(`- ${markdown(r.message, secrets)}`);
-      const more = answer.reasons_total - answer.reasons.length;
-      if (more > 0) lines.push(`- and ${more} more`);
+      const shown = answer.reasons.slice(0, MAX_REASONS);
+      for (const r of shown) {
+        lines.push(`- ${markdown(r.message, secrets)} (${markdown(r.code, secrets)})`);
+      }
+      const more = Math.max(answer.reasons_total, answer.reasons.length) - shown.length;
+      if (more > 0) lines.push(`- +${more} more`);
       lines.push("");
     }
     const url = answer?.console_url;

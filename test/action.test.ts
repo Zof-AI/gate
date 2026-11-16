@@ -77,6 +77,20 @@ describe("action inputs", () => {
     );
   });
 
+  it("the summary caps reasons at 10 with their codes, then counts the rest", async () => {
+    const reasons = Array.from({ length: 12 }, (_, i) => ({
+      code: `code_${i + 1}`,
+      message: `Reason ${i + 1}`,
+      remedy: null,
+      requirement_key: null,
+    }));
+    const body = { ...fixture("release-gate-answer-fail"), reasons, reasons_total: 12 };
+    const summary = (await run(RUNNER, 201, body)).out.files[SUMMARY] ?? "";
+    expect(summary).toContain("- Reason 10 (code\\_10)");
+    expect(summary).not.toContain("Reason 11");
+    expect(summary).toContain("- +2 more");
+  });
+
   it("with no api-url input or ZOF_API_URL, sends the token only to https://control.zof.ai", async () => {
     const r = await run(
       { ...RUNNER, "INPUT_API-URL": "", ZOF_API_URL: undefined },

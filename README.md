@@ -4,8 +4,8 @@
 decision: one step and one secret ask Zof whether this commit may go to this environment, and the
 job passes or fails on the answer.
 
-The current version is `1.0.1`: npm `@zof-ai/gate@1.0.1`, Action tags `v1.0.1`/`v1`, and image
-tags `1.0.1`/`1.0`/`1`. See [RELEASE.md](RELEASE.md) for how releases are made.
+The current version is `1.0.2`: npm `@zof-ai/gate@1.0.2`, Action tags `v1.0.2`/`v1`, and image
+tags `1.0.2`/`1.0`/`1`. See [RELEASE.md](RELEASE.md) for how releases are made.
 
 ## Embedding the command
 

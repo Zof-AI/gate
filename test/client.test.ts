@@ -89,7 +89,16 @@ describe("polling", () => {
     const { exit, elapsed, out } = await run([{ status: 202, body: farWaiting() }]);
     expect(exit).toBe(Exit.Blocked);
     expect(elapsed()).toBe(10 * 60_000);
-    expect(out.stdout).toContain("Blocked: Timed out waiting for Zof's decision.");
+    expect(out.stdout).toContain("Blocked: Timed out waiting for evidence.");
+  });
+
+  it.each([
+    ["decision", "Timed out waiting for Zof's decision."],
+    ["approval", "Timed out waiting for approval."],
+    [null, "Timed out waiting for Zof's decision."],
+  ])("the timeout says what it waited for (%s)", async (waitingFor, text) => {
+    const { out } = await run([{ status: 202, body: farWaiting({ waiting_for: waitingFor }) }]);
+    expect(out.stdout).toContain(`Blocked: ${text}`);
   });
 
   it("--max-wait shortens the wait", async () => {

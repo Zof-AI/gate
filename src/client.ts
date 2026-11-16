@@ -6,6 +6,7 @@ import {
   LONG_POLL_MAX_SECONDS,
 } from "./contract.js";
 import { dispositionFor, Exit, type ExitCode } from "./exit.js";
+import { timedOutMessage } from "./render.js";
 import { requestBody } from "./request.js";
 
 export interface HttpResponse {
@@ -136,7 +137,7 @@ export class GateClient {
       const serverDeadline = Date.parse(answer.wait_until) + SERVER_DEADLINE_GRACE_MS;
       const stopAt = Math.min(this.deadline, serverDeadline);
       if (now >= stopAt) {
-        return { exit: Exit.Blocked, answer, message: "Timed out waiting for Zof's decision." };
+        return { exit: Exit.Blocked, answer, message: timedOutMessage(answer.waiting_for) };
       }
       const pollMs =
         answer.poll_after_seconds === null ? DEFAULT_POLL_MS : answer.poll_after_seconds * 1_000;

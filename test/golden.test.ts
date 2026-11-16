@@ -29,7 +29,7 @@ const GOLDEN = [
     exit: Exit.Blocked,
     log: [
       "Blocked: The deploy decision blocks this commit. Fix the reasons listed. The deploy decision is DENY.",
-      "  - A required check failed.",
+      "  - A required check failed. (blocking_check_failed)",
       "See https://console.example.com/releases/pr/chg-1",
     ],
   },
@@ -82,7 +82,7 @@ describe("golden answers", () => {
     expect(out.stdout).toEqual([
       HEADLINE,
       "Waiting for evidence · until 2026-11-13T10:30:00Z",
-      "  - A required check hasn't run yet.",
+      "  - A required check hasn't run yet. (missing_blocking_evidence)",
       "Passed: the deploy decision is ALLOW.",
       "See https://console.example.com/releases/pr/chg-1",
     ]);
