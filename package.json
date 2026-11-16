@@ -1,0 +1,31 @@
+{
+  "name": "@zof-ai/gate",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Zof release gate client: block a CI/CD deploy on the Zof Control Plane's decision.",
+  "license": "Apache-2.0",
+  "author": "Zof AI, Inc.",
+  "homepage": "https://github.com/Zof-AI/gate#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zof-AI/gate.git"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "biome check .",
+    "fmt": "biome check --write .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "check": "npm run lint && npm run typecheck && npm test"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.8",
+    "@types/node": "22.20.5",
+    "typescript": "5.9.3",
+    "vitest": "4.1.12"
+  }
+}
