@@ -1,0 +1,54 @@
+{
+  "contract": "gate.v1",
+  "schema_version": 1,
+  "openapi_version": "1.2",
+  "source_repo": "Zof-AI/control_plane",
+  "source_ref": "origin/stg",
+  "source_commit": "f4c0f3487253ab69e4a955a9f8cc517491b1ecae",
+  "files": {
+    "fixtures/release-gate-answer-expired.v1.json": {
+      "source": "fixtures/control/release-gate-answer-expired.v1.json",
+      "sha256": "237a31974f4903a613bfc2a3ce8b6453837885d486fbc2e95d6a59abea290c85"
+    },
+    "fixtures/release-gate-answer-fail.v1.json": {
+      "source": "fixtures/control/release-gate-answer-fail.v1.json",
+      "sha256": "411d8367c9d7ccfad16af338e96e8c56ee0fa568e9c3b75e332b3ceaa98c7314"
+    },
+    "fixtures/release-gate-answer-pass-baseline.v1.json": {
+      "source": "fixtures/control/release-gate-answer-pass-baseline.v1.json",
+      "sha256": "95726dbb7aaf325d83cefa7e82d7a80bbb1e142dcbc5fd21aa1344253eb9db9b"
+    },
+    "fixtures/release-gate-answer-pass-break-glass.v1.json": {
+      "source": "fixtures/control/release-gate-answer-pass-break-glass.v1.json",
+      "sha256": "c9a57e8c3d5451ecaad1dcb2d361fa863209f37a6c66eeff99fe90930bf5f867"
+    },
+    "fixtures/release-gate-answer-pass.v1.json": {
+      "source": "fixtures/control/release-gate-answer-pass.v1.json",
+      "sha256": "1da59608d47a7d39d26948796beb4c94943403f197a86a1ab12b56a7e6f1872a"
+    },
+    "fixtures/release-gate-answer-waiting.v1.json": {
+      "source": "fixtures/control/release-gate-answer-waiting.v1.json",
+      "sha256": "452977b2d4a86d2f74fe4236d4dd4f444726055ae24a6398d5ecb0a164ad63c4"
+    },
+    "fixtures/release-gate-request-break-glass.v1.json": {
+      "source": "fixtures/control/release-gate-request-break-glass.v1.json",
+      "sha256": "c7520ec3229b1aa331a889674407337575f8a82ecabaf1fdd802513063d8a495"
+    },
+    "fixtures/release-gate-request.v1.json": {
+      "source": "fixtures/control/release-gate-request.v1.json",
+      "sha256": "edf6d7d3875eb4eef22e144878a63da9d19e81d10d8150dc4631a33a21200c05"
+    },
+    "openapi.gate.v1.json": {
+      "source": "docs/openapi/gate.v1.json",
+      "sha256": "20bb096e95ab58c6858e576735153961031d6dfc7d0b949879f882d31ed64dcb"
+    },
+    "schemas/release_gate.v1.json": {
+      "source": "docs/schemas/release_gate.v1.json",
+      "sha256": "d769f8d66ccedbce46f62824d0b7264da56397349dcc4f42b58e2dd83a19cc9e"
+    },
+    "schemas/release_gate_request.v1.json": {
+      "source": "docs/schemas/release_gate_request.v1.json",
+      "sha256": "b4e0017ffdc3013bbde759b01d45cd54be08d23f3acc56ba6751cbfe82e14090"
+    }
+  }
+}
