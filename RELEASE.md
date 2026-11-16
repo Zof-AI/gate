@@ -3,12 +3,12 @@
 This source prepares one version for npm, the Action and the container. It does not publish
 a package, create tags, enable a gate or change account settings.
 
-| Surface | First release |
-| --- | --- |
-| npm | `@zof-ai/gate@1.0.0` |
-| GitHub Action | `Zof-AI/gate@v1.0.0`, moving alias `v1` |
-| Container | `ghcr.io/zof-ai/gate:1.0.0`, aliases `1.0` and `1`; linux/amd64 |
-| CLI wrapper | `@zof-ai/cli` depends on `@zof-ai/gate@1.0.0` |
+| Surface       | First release                                                   |
+| ------------- | --------------------------------------------------------------- |
+| npm           | `@zof-ai/gate@1.0.0`                                            |
+| GitHub Action | `Zof-AI/gate@v1.0.0`, moving alias `v1`                         |
+| Container     | `ghcr.io/zof-ai/gate:1.0.0`, aliases `1.0` and `1`; linux/amd64 |
+| CLI wrapper   | `@zof-ai/cli` depends on `@zof-ai/gate@1.0.0`                   |
 
 ## Blocking source decision: public API address
 
